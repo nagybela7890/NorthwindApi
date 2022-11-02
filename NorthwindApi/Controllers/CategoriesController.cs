@@ -1,0 +1,55 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
+using NorthwindApi.Data;
+using NorthwindApi.Domain;
+
+
+namespace NorthwindApi.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+
+    public class CategoriesController : ControllerBase
+    {
+        private readonly NorthwindContext _context;
+        public CategoriesController(NorthwindContext context)
+        {
+            _context = context;
+        }
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var categories = _context.Categories;
+
+            if (categories == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(categories);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            var category = _context.Categories.FirstOrDefault(c => c.CategoryId == id);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(category);
+        }
+        [HttpGet("count")]
+        public int Count() => _context.Categories.Count();
+
+        [HttpGet("{id}/products")]
+        public IEnumerable<Product> GetProductsByCategoryId(int id)
+        {
+            return _context.Products.Where(p => p.CategoryId == id);
+        }
+    }
+}
